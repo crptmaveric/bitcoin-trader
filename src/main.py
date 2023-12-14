@@ -3,11 +3,11 @@ import schedule
 import time
 from src.coinbase_api import CoinbaseAdvancedAuth, buy_bitcoin, get_order_details, \
     wait_for_order_completion  # Importing wait_for_order_completion
-from src.coinbase_api_v2 import CoinbaseWalletAuth, get_euro_balance
+from src.coinbase_api_v2 import CoinbaseWalletAuth, get_euro_balance, get_bitcoin_price, get_bitcoin_price_change
 from src.database import create_database, log_transaction
-from src.investment_logic import get_fear_and_greed_index, calculate_investment_amount
+from src.investment_logic import get_fear_and_greed_index, adaptive_average_cost, adaptive_cost_average_with_market_timing
 from config.config import API_KEY, MONTHLY_LIMIT, FREQUENCY, INVESTMENT_DAY, TRADING_PAIR, PRIVATE_KEY, API_KEY_V2, \
-    API_SECRET_V2
+    API_SECRET_V2, INVESTMENT_STRATEGY
 
 
 def load_private_key_from_file(file_path):
@@ -22,7 +22,14 @@ def execute_investment():
     authV2 = CoinbaseWalletAuth(API_KEY_V2, API_SECRET_V2)
 
     index_value = get_fear_and_greed_index()
-    investment_amount = calculate_investment_amount(index_value, MONTHLY_LIMIT, FREQUENCY)
+    btc_price_change = get_bitcoin_price_change()
+
+    # Selecting the investment strategy based on a configuration variable
+    if INVESTMENT_STRATEGY == 'adaptive_cost_average_with_market_timing':
+        investment_amount = adaptive_cost_average_with_market_timing(index_value, btc_price_change, MONTHLY_LIMIT, FREQUENCY)
+    else:
+        investment_amount = adaptive_average_cost(index_value, MONTHLY_LIMIT, FREQUENCY)
+
     euro_balance = get_euro_balance(authV2)
 
     if euro_balance is None or float(euro_balance) < investment_amount:
