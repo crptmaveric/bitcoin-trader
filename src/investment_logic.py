@@ -29,6 +29,7 @@ def adaptive_average_cost(fear_greed_index, monthly_limit, frequency):
 
     return round(investment_amount, 1)
 
+
 def adaptive_cost_average_with_market_timing(fear_greed_index, btc_price_change, monthly_budget, investment_frequency):
     # Base weekly investment amount
     base_investment = monthly_budget / investment_frequency
@@ -60,6 +61,7 @@ def adaptive_cost_average_with_market_timing(fear_greed_index, btc_price_change,
 
     return round(investment_amount, 1)
 
+
 def adaptive_average_cost_with_technical_analysis(row):
     monthly_limit = 100
     frequency = 4
@@ -86,7 +88,6 @@ def adaptive_average_cost_with_technical_analysis(row):
     return round(investment_amount, 1)
 
 
-
 def adaptive_cost_average_with_market_timing_and_dynamic_coefficients(row):
     monthly_budget = 100
     investment_frequency = 4
@@ -97,4 +98,3 @@ def adaptive_cost_average_with_market_timing_and_dynamic_coefficients(row):
     investment_amount = base_investment * index_adjustment * price_adjustment
 
     return round(investment_amount, 1)
-
