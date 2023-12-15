@@ -1,6 +1,8 @@
 import sqlite3
-import time
 
+from logger import Logger
+
+logger = Logger()
 
 def create_database():
     conn = sqlite3.connect('trading_app.db')
@@ -58,7 +60,7 @@ def log_uninvested_balance(month_year, investment_date, uninvested_amount):
 
         conn.commit()
     except sqlite3.Error as e:
-        print(f"Database error: {e}")
+        logger.error(f"Database error: {e}")
         conn.rollback()
     finally:
         conn.close()
@@ -82,7 +84,7 @@ def get_uninvested_balances(month_year=None):
             result = cursor.fetchone()
             return result[0] if result else 0
     except sqlite3.Error as e:
-        print(f"Database error: {e}")
+        logger.error(f"Database error: {e}")
         return None
     finally:
         conn.close()
