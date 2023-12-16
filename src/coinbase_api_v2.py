@@ -3,6 +3,7 @@ import hmac
 import hashlib
 import time
 import requests
+import pandas as pd
 from requests.auth import AuthBase
 from config.config import TRADING_PAIR
 from logger import Logger
@@ -98,3 +99,49 @@ def get_bitcoin_price_change(trading_pair=TRADING_PAIR):
     price_change = ((current_price - past_price) / past_price) * 100
     logger.info(f"Bitcoin price change: {price_change}%")
     return price_change
+
+
+class CoinbaseMarketData:
+    def __init__(self, auth):
+        """
+        Initialize the CoinbaseMarketData with authentication details.
+
+        :param auth: Authentication object for Coinbase API.
+        """
+        self.auth = auth
+
+    def fetch_historical_data(self, symbol, start_date, end_date):
+        """
+        Fetch historical price and volume data for a given cryptocurrency symbol
+        between start_date and end_date.
+
+        :param symbol: Symbol for the cryptocurrency (e.g., 'BTC-USD').
+        :param start_date: Start date for the data in 'YYYY-MM-DD' format.
+        :param end_date: End date for the data in 'YYYY-MM-DD' format.
+        :return: DataFrame with historical data (date, price, volume).
+        """
+        url = f'https://api.pro.coinbase.com/products/{symbol}/candles?start={start_date}&end={end_date}&granularity=86400'
+
+        try:
+            response = requests.get(url, auth=self.auth)
+            response.raise_for_status()
+            data = response.json()
+
+            logger.debug(data)
+
+            # Transforming data to DataFrame
+            df = pd.DataFrame(data, columns=['time', 'low', 'high', 'open', 'close', 'volume'])
+            df['date'] = pd.to_datetime(df['time'], unit='s')
+            df = df[['date', 'open', 'high', 'low', 'close', 'volume']]
+            return df
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error fetching historical data: {e}")
+            return None
+
+# Your existing CoinbaseWalletAuth class and other functionalities
+
+# Example usage:
+# auth = CoinbaseWalletAuth(API_KEY, API_SECRET)
+# market_data = CoinbaseMarketData(auth)
+# historical_data = market_data.fetch_historical_data('BTC-USD', '2023-01-01', '2023-01-31')
+# print(historical_data)
