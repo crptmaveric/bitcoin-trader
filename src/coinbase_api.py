@@ -10,11 +10,33 @@ logger = Logger()
 
 class CoinbaseAdvancedAuth:
     def __init__(self, key_name, private_key):
+        """
+        Initialize the CoinbaseAdvancedAuth class for handling authentication with the Coinbase API.
+
+        Parameters:
+        key_name (str): The API key name.
+        private_key (str): The private key in PEM format for generating JWT tokens.
+        """
         self.key_name = key_name
         self.private_key = private_key
         logger.info("CoinbaseAdvancedAuth initialized.")
 
     def generate_jwt(self, request_method, request_host, request_path, service_name):
+        """
+        Generate a JWT token for authenticating requests to the Coinbase API.
+
+        Parameters:
+        request_method (str): HTTP method for the request (e.g., 'GET', 'POST').
+        request_host (str): The host URL for the request.
+        request_path (str): The path of the API endpoint.
+        service_name (str): The name of the Coinbase service.
+
+        Returns:
+        str: The generated JWT token.
+
+        Raises:
+        Exception: If there is an error in generating the JWT token.
+        """
         try:
             logger.info("Generating JWT for Coinbase Advanced Trading API.")
             uri = f"{request_method} {request_host}{request_path}"
@@ -41,6 +63,17 @@ class CoinbaseAdvancedAuth:
 
 
 def get_order_details(api_key, private_key, order_id):
+    """
+    Fetch the details of a specific order.
+
+    Parameters:
+    api_key (str): The API key for Coinbase authentication.
+    private_key (str): The private key for Coinbase authentication.
+    order_id (str): The unique identifier of the order.
+
+    Returns:
+    dict: A dictionary containing order details, or None if the request fails.
+    """
     try:
         logger.info(f"Fetching order details for order_id: {order_id}")
         auth = CoinbaseAdvancedAuth(api_key, private_key)
@@ -59,7 +92,7 @@ def get_order_details(api_key, private_key, order_id):
                 'status': order_details.get('status')
             }
         else:
-            logger.warning(f"Failed to get order details for {order_id}")
+            logger.warning(f"Failed to get order details for {order_id}. Response code: {response.status_code}")
             return None
     except Exception as e:
         logger.error(f"Error fetching order details: {e}")
@@ -67,6 +100,19 @@ def get_order_details(api_key, private_key, order_id):
 
 
 def wait_for_order_completion(api_key, private_key, order_id, timeout=30, interval=5):
+    """
+    Wait for the completion of an order within a specified timeout period.
+
+    Parameters:
+    api_key (str): The API key for Coinbase authentication.
+    private_key (str): The private key for Coinbase authentication.
+    order_id (str): The unique identifier of the order.
+    timeout (int): The maximum time to wait for order completion in seconds.
+    interval (int): The interval between each status check in seconds.
+
+    Returns:
+    bool: True if the order is completed within the timeout, False otherwise.
+    """
     logger.info(f"Waiting for order completion: {order_id}")
     start_time = time.time()
     while time.time() - start_time < timeout:
@@ -87,6 +133,20 @@ def wait_for_order_completion(api_key, private_key, order_id, timeout=30, interv
 
 
 def buy_bitcoin(api_key, private_key, client_order_id, product_id, amount, order_type='market_market_ioc'):
+    """
+    Place an order to buy Bitcoin.
+
+    Parameters:
+    api_key (str): The API key for Coinbase authentication.
+    private_key (str): The private key for Coinbase authentication.
+    client_order_id (str): A unique identifier for the order.
+    product_id (str): The product identifier (e.g., 'BTC-USD').
+    amount (float): The amount of Bitcoin to buy.
+    order_type (str): The type of order to place (default is 'market_market_ioc').
+
+    Returns:
+    dict: A dictionary containing the status and details of the order.
+    """
     try:
         logger.info(f"Placing a buy order for Bitcoin. Order type: {order_type}")
         auth = CoinbaseAdvancedAuth(api_key, private_key)
