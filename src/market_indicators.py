@@ -30,66 +30,39 @@ def fetch_price_data(coin, days):
         return []
 
 
-def calculate_moving_average(prices, window):
+def calculate_moving_average(data, window_size):
     """
-    Calculate the moving average for a set of prices.
-
-    Parameters:
-    prices (list): A list of price values.
-    window (int): The window size for the moving average calculation.
-
-    Returns:
-    list: A list of moving average values.
+    Calculate the moving average for the given data and window size.
     """
-    try:
-        return pd.Series(prices).rolling(window=window).mean().tolist()
-    except Exception as e:
-        print(f"Error calculating moving average: {e}")
-        return []
+    return data['price'].rolling(window=window_size).mean()
 
 
-def calculate_rsi(prices, period=14):
+def calculate_RSI(data, period=14):
     """
-    Calculate the Relative Strength Index (RSI) for a set of prices.
-
-    Parameters:
-    prices (list): A list of price values.
-    period (int): The period over which to calculate the RSI.
-
-    Returns:
-    list: A list of RSI values.
+    Calculate the Relative Strength Index (RSI) for the given data.
     """
-    try:
-        delta = pd.Series(prices).diff()
-        gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
-        loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
-        rs = gain / loss
-        rsi = 100 - (100 / (1 + rs))
-        return rsi.tolist()
-    except Exception as e:
-        print(f"Error calculating RSI: {e}")
-        return []
+    delta = data['price'].diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
+
+    RS = gain / loss
+    RSI = 100 - (100 / (1 + RS))
+    return RSI
 
 
-def calculate_macd(prices, short_term=12, long_term=26, signal=9):
+def calculate_MACD(data, short_term_period=12, long_term_period=26, signal_period=9):
     """
-    Calculate the Moving Average Convergence Divergence (MACD) for a set of prices.
-
-    Parameters:
-    prices (list): A list of price values.
-    short_term (int): The short-term EMA period.
-    long_term (int): The long-term EMA period.
-    signal (int): The signal line EMA period.
-
-    Returns:
-    tuple: A tuple containing two lists (MACD values and signal line values).
+    Calculate the Moving Average Convergence Divergence (MACD) for the given data.
     """
-    try:
-        short_ema = pd.Series(prices).ewm(span=short_term, adjust=False).mean()
-        long_ema = pd.Series(prices).ewm(span=long_term, adjust=False).mean()
-        macd = short_ema - long_ema
-        signal_line = macd.ewm(span=signal, adjust=False).mean()
-        return macd.tolist(), signal_line.tolist()
-    except Exception as e:
-        print(f"Error calculating MACD: {e}")
-        return [], []
+    short_term_ema = data['price'].ewm(span=short_term_period, adjust=False).mean()
+    long_term_ema = data['price'].ewm(span=long_term_period, adjust=False).mean()
+
+    MACD = short_term_ema - long_term_ema
+    MACD_signal = MACD.ewm(span=signal_period, adjust=False).mean()
+    return MACD, MACD_signal
+
+# Example usage
+# data = pd.DataFrame({'price': [/* historical prices */]})
+# moving_avg = calculate_moving_average(data, 50)  # 50-day moving average
+# rsi = calculate_RSI(data)
+# macd, macd_signal = calculate_MACD(data)

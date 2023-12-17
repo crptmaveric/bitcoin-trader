@@ -1,3 +1,8 @@
+from logger import Logger
+
+logger = Logger()
+
+
 class RiskManagement:
     def __init__(self, stop_loss_threshold, take_profit_threshold, max_drawdown):
         """
@@ -55,7 +60,22 @@ class RiskManagement:
         Returns:
         bool: True if stop loss condition is met, False otherwise.
         """
+        # Ensure purchase_price and current_price are not None and are numeric
+        if purchase_price is None or current_price is None:
+            logger.error("Purchase price or current price is None.")
+            return False
+
+        try:
+            # Convert to float if they are strings
+            purchase_price = float(purchase_price)
+            current_price = float(current_price)
+        except ValueError:
+            logger.error("Invalid price format.")
+            return False
+
+        # Calculate loss
         loss = (purchase_price - current_price) / purchase_price
+
         return loss > self.stop_loss_threshold
 
     def should_take_profit(self, current_price, purchase_price):
@@ -69,6 +89,19 @@ class RiskManagement:
         Returns:
         bool: True if take profit condition is met, False otherwise.
         """
-        profit = (current_price - purchase_price) / purchase_price
-        return profit > self.take_profit_threshold
+        # Ensure purchase_price and current_price are not None and are numeric
+        if purchase_price is None or current_price is None:
+            logger.error("Purchase price or current price is None.")
+            return False
 
+        try:
+            # Convert to float if they are strings
+            purchase_price = float(purchase_price)
+            current_price = float(current_price)
+        except ValueError:
+            logger.error("Invalid price format.")
+            return False
+
+        profit = (current_price - purchase_price) / purchase_price
+
+        return profit > self.take_profit_threshold

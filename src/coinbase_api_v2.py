@@ -15,7 +15,6 @@ class CoinbaseWalletAuth(AuthBase):
     def __init__(self, api_key, api_secret):
         """
         Initialize the CoinbaseWalletAuth class for handling authentication with the Coinbase API v2.
-
         Parameters:
         api_key (str): The API key for Coinbase authentication.
         api_secret (str): The API secret for generating the HMAC signature.
@@ -27,10 +26,8 @@ class CoinbaseWalletAuth(AuthBase):
     def __call__(self, request):
         """
         Add authentication details to the request.
-
         Parameters:
         request: The request object to be sent to the API.
-
         Returns:
         The modified request object with authentication details.
         """
@@ -161,11 +158,11 @@ class CoinbaseMarketData:
     def __init__(self, auth):
         """
         Initialize the CoinbaseMarketData with authentication details.
-
         Parameters:
         auth (CoinbaseWalletAuth): Authentication object for Coinbase API requests.
         """
         self.auth = auth
+        self.base_url = 'https://api.coinbase.com/v2/'  # Define base_url here
 
     def fetch_historical_data(self, symbol, start_date, end_date):
         """
@@ -187,6 +184,8 @@ class CoinbaseMarketData:
             response.raise_for_status()
             data = response.json()
 
+            logger.debug(data)
+
             # Transforming data to DataFrame
             df = pd.DataFrame(data, columns=['time', 'low', 'high', 'open', 'close', 'volume'])
             df['date'] = pd.to_datetime(df['time'], unit='s')
@@ -195,3 +194,58 @@ class CoinbaseMarketData:
         except requests.exceptions.RequestException as e:
             logger.error(f"Error fetching historical data: {e}")
             return None
+
+    def get_historical_data(self, currency_pair, start_date, end_date):
+        """
+        Retrieve historical price data for a specific cryptocurrency pair.
+        Parameters:
+        currency_pair (str): The cryptocurrency pair (e.g., 'BTC-USD').
+        start_date (datetime): The start date for the data.
+        end_date (datetime): The end date for the data.
+        Returns:
+        DataFrame: A DataFrame with the historical prices, or None if the request fails.
+        """
+        start_date_iso = start_date.isoformat()
+        end_date_iso = end_date.isoformat()
+        url = f"{self.base_url}prices/{currency_pair}/historic?start={start_date_iso}&end={end_date_iso}"
+        response = requests.get(url, auth=self.auth)
+
+        logger.debug(response.text)
+
+        if response.status_code == 200:
+            data = response.json()
+            df = pd.DataFrame(data['data']['prices'])
+            return df
+        else:
+            logger.error(f"Error fetching historical data: {response.status_code}")
+            return None
+
+    def get_real_time_data(self, currency_pair):
+        """
+        Retrieve real-time price data for a specific cryptocurrency pair.
+        Parameters:
+        currency_pair (str): The cryptocurrency pair (e.g., 'BTC-USD').
+        Returns:
+        str: The current price as a string, or None if the request fails.
+        """
+
+        url = f"{self.base_url}prices/{currency_pair}/spot"
+        response = requests.get(url, auth=self.auth)
+
+        logger.debug(response.text)
+
+        if response.status_code == 200:
+            data = response.json()
+            price = float(data['data']['amount'])  # Convert price to float
+            # Create a DataFrame with the price data
+            price_df = pd.DataFrame({'price': [price]})
+            return price_df
+        else:
+            logger.error(f"Error fetching real-time data: {response.status_code}")
+            return None
+
+# Example usage
+# auth = CoinbaseWalletAuth('your_api_key', 'your_api_secret')
+# market_data = CoinbaseMarketData(auth)
+# historical_data = market_data.get_historical_data('BTC-USD', datetime.datetime(2023, 1, 1), datetime.datetime(2023, 12, 31))
+# real_time_price = market

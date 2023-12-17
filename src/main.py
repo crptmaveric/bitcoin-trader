@@ -1,3 +1,4 @@
+import datetime
 import uuid
 import schedule
 import time
@@ -9,6 +10,7 @@ from src.investment_logic import get_fear_and_greed_index, adaptive_average_cost
 from config.config import API_KEY, MONTHLY_LIMIT, FREQUENCY, INVESTMENT_DAY, TRADING_PAIR, PRIVATE_KEY, API_KEY_V2, \
     API_SECRET_V2, INVESTMENT_STRATEGY
 from logger import Logger
+from trading_bot import TradingBot
 
 logger = Logger()
 
@@ -84,6 +86,13 @@ def execute_investment():
 
 create_database()
 logger.info("Database created.")
+
+# # Main Execution
+#
+# bot = TradingBot()
+# bot.start_trading()
+#
+# exit(111)
 
 schedule_map = {
     'monday': schedule.every().monday,

@@ -28,7 +28,7 @@ class Logger:
 
         # Logovanie na terminálový výstup
         console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(logging.INFO)
+        console_handler.setLevel(logging.DEBUG)
         console_handler.setFormatter(formatter)
         self.logger.addHandler(console_handler)
 
