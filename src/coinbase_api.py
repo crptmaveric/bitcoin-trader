@@ -112,9 +112,8 @@ def buy_bitcoin(api_key, private_key, client_order_id, product_id, amount, order
         }
 
         logger.info(data)
-        exit(111)
 
-        # response = requests.post('https://api.coinbase.com/api/v3/brokerage/orders', headers=headers, json=data)
+        response = requests.post('https://api.coinbase.com/api/v3/brokerage/orders', headers=headers, json=data)
         if response.status_code == 200:
             response_data = response.json()
             if response_data.get('success'):
@@ -176,8 +175,8 @@ def sell_bitcoin(api_key, private_key, client_order_id, product_id, amount, orde
         }
 
         logger.info(data)
-        exit(111)
-        # response = requests.post('https://api.coinbase.com/api/v3/brokerage/orders', headers=headers, json=data)
+
+        response = requests.post('https://api.coinbase.com/api/v3/brokerage/orders', headers=headers, json=data)
         if response.status_code == 200:
             response_data = response.json()
             if response_data.get('success'):
