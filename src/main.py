@@ -1,16 +1,14 @@
-import datetime
 import uuid
 import schedule
 import time
 from src.coinbase_api import CoinbaseAdvancedAuth, buy_bitcoin, get_order_details, wait_for_order_completion
-from src.coinbase_api_v2 import CoinbaseWalletAuth, get_euro_balance, get_bitcoin_price_change, CoinbaseMarketData
+from src.coinbase_api_v2 import CoinbaseWalletAuth, get_euro_balance, get_bitcoin_price_change
 from src.database import create_database, log_transaction, log_uninvested_balance
 from src.investment_logic import get_fear_and_greed_index, adaptive_average_cost, \
     adaptive_cost_average_with_market_timing
 from config.config import API_KEY, MONTHLY_LIMIT, FREQUENCY, INVESTMENT_DAY, TRADING_PAIR, PRIVATE_KEY, API_KEY_V2, \
     API_SECRET_V2, INVESTMENT_STRATEGY
 from logger import Logger
-from trading_bot import TradingBot
 
 logger = Logger()
 

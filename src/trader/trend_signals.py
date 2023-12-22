@@ -1,4 +1,4 @@
-from market_indicators import calculate_moving_average, calculate_RSI, calculate_MACD
+from trader.market_indicators import calculate_moving_average, calculate_RSI, calculate_MACD
 
 
 def generate_signals(data, short_term_window, long_term_window, rsi_threshold, macd_threshold):

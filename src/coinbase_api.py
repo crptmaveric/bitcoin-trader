@@ -94,15 +94,11 @@ def buy_bitcoin(api_key, private_key, client_order_id, product_id, amount, order
         jwt_token = auth.generate_jwt('POST', 'api.coinbase.com', '/api/v3/brokerage/orders', 'retail_rest_api_proxy')
         headers = {"Authorization": f"Bearer {jwt_token}"}
 
-        if order_type == 'market_market_ioc':
-            order_configuration = {
-                "market_market_ioc": {
-                    "quote_size": str(amount)
-                }
+        order_configuration = {
+            "market_market_ioc": {
+                "quote_size": str(amount)
             }
-        else:
-            logger.error("Unsupported order type")
-            raise ValueError("Unsupported order type")
+        }
 
         data = {
             "client_order_id": client_order_id,
@@ -111,16 +107,16 @@ def buy_bitcoin(api_key, private_key, client_order_id, product_id, amount, order
             "order_configuration": order_configuration
         }
 
-        logger.info(data)
-
         response = requests.post('https://api.coinbase.com/api/v3/brokerage/orders', headers=headers, json=data)
         if response.status_code == 200:
             response_data = response.json()
             if response_data.get('success'):
                 logger.info(f"Order successfully created: {response_data['success_response']['order_id']}")
+                order_id = response_data['success_response']['order_id']
+
                 return {
                     "status": "success",
-                    "order_id": response_data['success_response']['order_id'],
+                    "order_id": order_id,
                     "details": "Order successfully created."
                 }
             else:
@@ -174,16 +170,16 @@ def sell_bitcoin(api_key, private_key, client_order_id, product_id, amount, orde
             "order_configuration": order_configuration
         }
 
-        logger.info(data)
-
         response = requests.post('https://api.coinbase.com/api/v3/brokerage/orders', headers=headers, json=data)
         if response.status_code == 200:
             response_data = response.json()
             if response_data.get('success'):
                 logger.info(f"Order successfully created: {response_data['success_response']['order_id']}")
+                order_id = response_data['success_response']['order_id']
+
                 return {
                     "status": "success",
-                    "order_id": response_data['success_response']['order_id'],
+                    "order_id": order_id,
                     "details": "Order successfully created."
                 }
             else:
@@ -212,8 +208,69 @@ def sell_bitcoin(api_key, private_key, client_order_id, product_id, amount, orde
             "details": "An exception occurred while sending the sell order request."
         }
 
-# Example usage
-# api_key = 'your_api_key'
-# private_key = 'your_private_key'
-# buy_order = buy_bitcoin(api_key, private_key, 'unique_client_order_id', 'BTC-USD', 0.1)
-# sell_order = sell_bitcoin(api_key, private_key, 'unique_client_order_id', 'BTC-USD', 0.1)
+
+def create_stop_order(api_key, private_key, client_order_id, product_id, base_size, stop_price, limit_price,
+                      stop_direction, order_type='stop_limit_stop_limit_gtc'):
+    """
+    Create a stop order on the Coinbase Advanced Trading API. This can be used for stop-loss or take-profit orders.
+
+    Parameters:
+    api_key (str): Your API key for Coinbase authentication.
+    private_key (str): Your private key for Coinbase authentication.
+    client_order_id (str): A unique ID provided by the client for their own identification purposes.
+                           This ID differs from the order_id generated for the order. If the ID provided
+                           is not unique, the order fails to be created, and the order corresponding to
+                           that ID is returned.
+    product_id (str): The product ID for which this order is created (e.g., 'BTC-USD').
+    base_size (str): The amount of base currency to spend on order.
+    stop_price (str): The price at which the order should trigger. For a stop-loss order, this is typically
+                      set below the current market price, and for a take-profit order, it's set above the
+                      current market price.
+    limit_price (str): The ceiling price at which the order should be filled. This ensures that the order
+                       won't be filled at a price worse than this limit price.
+    stop_direction (str): Indicates the direction for the stop price. Possible values are:
+                          'STOP_DIRECTION_STOP_UP' - triggers when the last trade price goes above the stop price.
+                          'STOP_DIRECTION_STOP_DOWN' - triggers when the last trade price goes below the stop price.
+    order_type (str, optional): The type of the stop order. Default is 'stop_limit_stop_limit_gtc'.
+                                'gtc' (Good Till Canceled) orders remain open on the book until canceled.
+
+    Returns:
+    dict: A dictionary with the response data from the API, including order details or error messages.
+    """
+    try:
+        logger.info(f"Creating stop order for {product_id}. Stop price: {stop_price}, Limit price: {limit_price}")
+        auth = CoinbaseAdvancedAuth(api_key, private_key)
+        jwt_token = auth.generate_jwt('POST', 'api.coinbase.com', '/api/v3/brokerage/orders', 'retail_rest_api_proxy')
+        headers = {"Authorization": f"Bearer {jwt_token}"}
+
+        order_configuration = {
+            order_type: {
+                "base_size": str(base_size),
+                "limit_price": str(limit_price),
+                "stop_price": str(stop_price),
+                "stop_direction": stop_direction
+            }
+        }
+
+        data = {
+            "client_order_id": client_order_id,
+            "product_id": product_id,
+            "order_configuration": order_configuration
+        }
+
+        response = requests.post('https://api.coinbase.com/api/v3/brokerage/orders', headers=headers, json=data)
+        if response.status_code == 200:
+            response_data = response.json()
+            if response_data.get('success'):
+                logger.info(f"Stop order successfully created: {response_data['success_response']['order_id']}")
+                return response_data['success_response']
+            else:
+                logger.warning(f"Failed to create stop order: {response_data.get('failure_reason')}")
+                return {"status": "failure", "reason": response_data.get('failure_reason')}
+        else:
+            logger.error(f"Unexpected error response: {response.text}")
+            return {"status": "error", "error": response.text}
+    except Exception as e:
+        logger.error(f"Exception during stop order request: {e}")
+        return {"status": "exception", "message": str(e)}
+
