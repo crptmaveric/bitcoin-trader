@@ -75,6 +75,30 @@ def log_uninvested_balance(month_year, investment_date, uninvested_amount):
         conn.close()
 
 
+def get_uninvested_balances(month_year=None):
+    conn = sqlite3.connect('trading_app.db')
+    try:
+        cursor = conn.cursor()
+
+        if month_year:
+            cursor.execute('''
+                SELECT uninvested_amount FROM uninvested_balances WHERE month_year = ?
+            ''', (month_year,))
+            result = cursor.fetchone()
+            return result[0] if result else 0
+        else:
+            cursor.execute('''
+                SELECT SUM(uninvested_amount) FROM uninvested_balances
+            ''')
+            result = cursor.fetchone()
+            return result[0] if result else 0
+    except sqlite3.Error as e:
+        logger.error(f"Database error: {e}")
+        return None
+    finally:
+        conn.close()
+
+
 # New functions to manage the last purchase date
 def get_last_purchase_date():
     conn = sqlite3.connect('trading_app.db')
