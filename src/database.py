@@ -16,7 +16,8 @@ def create_database():
             invested_amount REAL,
             bitcoin_purchased REAL,
             purchase_price REAL,
-            purchase_time TEXT
+            purchase_time TEXT,
+            transaction_type TEXT
         )
     ''')
 
@@ -34,15 +35,15 @@ def create_database():
     conn.close()
 
 
-def log_transaction(order_id, invested_amount, bitcoin_purchased, purchase_price, purchase_time):
+def log_transaction(order_id, invested_amount, bitcoin_purchased, purchase_price, purchase_time, transaction_type):
     conn = sqlite3.connect('trading_app.db')
     cursor = conn.cursor()
 
     # Inserting the new data into the transactions table
     cursor.execute('''
-        INSERT INTO transactions (order_id, invested_amount, bitcoin_purchased, purchase_price, purchase_time)
-        VALUES (?, ?, ?, ?, ?)
-    ''', (order_id, invested_amount, bitcoin_purchased, purchase_price, purchase_time))
+        INSERT INTO transactions (order_id, invested_amount, bitcoin_purchased, purchase_price, purchase_time, transaction_type)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', (order_id, invested_amount, bitcoin_purchased, purchase_price, purchase_time, transaction_type))
 
     conn.commit()
     conn.close()

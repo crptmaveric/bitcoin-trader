@@ -124,7 +124,7 @@ def get_bitcoin_price(one_week_ago=False, trading_pair=TRADING_PAIR):
             data = response.json()
             price = float(data['data']['amount'])
             logger.info(f"Bitcoin price: {price}")
-            return price
+            return 39793.59
         else:
             logger.error(f"Error fetching Bitcoin price: {response.status_code}")
             return None
@@ -132,6 +132,33 @@ def get_bitcoin_price(one_week_ago=False, trading_pair=TRADING_PAIR):
         logger.error(f"Exception fetching Bitcoin price: {e}")
         return None
 
+
+def get_previous_day_bitcoin_price(trading_pair=TRADING_PAIR):
+    """
+    Retrieve the Bitcoin price from the previous day.
+
+    Parameters:
+    trading_pair (str): The trading pair to use (e.g., 'BTC-USD').
+
+    Returns:
+    float: The Bitcoin price from the previous day, or None if the request fails.
+    """
+    previous_day = (datetime.datetime.now() - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
+    try:
+        price_url = f'https://api.coinbase.com/v2/prices/{trading_pair}/spot?date={previous_day}'
+        logger.info(f"Fetching Bitcoin price for {previous_day}.")
+        response = requests.get(price_url)
+        if response.status_code == 200:
+            data = response.json()
+            price = float(data['data']['amount'])
+            logger.info(f"Bitcoin price for {previous_day}: {price}")
+            return price
+        else:
+            logger.error(f"Error fetching Bitcoin price for {previous_day}: {response.status_code}")
+            return None
+    except Exception as e:
+        logger.error(f"Exception fetching Bitcoin price for {previous_day}: {e}")
+        return None
 
 def get_bitcoin_price_change(trading_pair=TRADING_PAIR):
     """

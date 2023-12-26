@@ -1,10 +1,16 @@
 import requests
 
+from logger import Logger
+
+logger = Logger()
 
 def get_fear_and_greed_index():
     url = "https://api.alternative.me/fng/"
     response = requests.get(url)
     data = response.json()
+
+    logger.info(f"Fear index: {index_value}")
+
     return int(data['data'][0]['value'])
 
 
