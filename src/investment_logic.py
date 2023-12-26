@@ -4,14 +4,16 @@ from logger import Logger
 
 logger = Logger()
 
+
 def get_fear_and_greed_index():
     url = "https://api.alternative.me/fng/"
     response = requests.get(url)
     data = response.json()
+    index_value = int(data['data'][0]['value'])
 
     logger.info(f"Fear index: {index_value}")
 
-    return int(data['data'][0]['value'])
+    return index_value
 
 
 def adaptive_average_cost(fear_greed_index, monthly_limit, frequency):
