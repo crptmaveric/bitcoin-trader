@@ -23,12 +23,16 @@ if [ ! -d "$LOGS_DIR" ]; then
   echo "Vytváram adresár 'logs'..."
   mkdir -p "$LOGS_DIR"
   touch "$LOGS_DIR/application.log"
+  chown rdy:rdy "$LOGS_DIR"
+  chown rdy:rdy "$LOGS_DIR/application.log"
+  chmod +w "$LOGS_DIR/application.log"
 fi
 
 # Kontrola existencie adresára config
 if [ ! -d "$CONFIG_DIR" ]; then
   echo "Vytváram adresár 'config'..."
   mkdir -p "$CONFIG_DIR"
+  chown rdy:rdy "CONFIG_DIR"
 fi
 
 # spustitelny run
