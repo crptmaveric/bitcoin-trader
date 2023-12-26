@@ -1,3 +1,4 @@
 /config/
 /logs/
 /logs/*
+/src/trading_app.db
