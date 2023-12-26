@@ -1,5 +1,6 @@
 import time
 import uuid
+from datetime import datetime
 
 from config.config import API_KEY, MONTHLY_LIMIT, FREQUENCY, TRADING_PAIR, PRIVATE_KEY, API_KEY_V2, \
     API_SECRET_V2, INVESTMENT_STRATEGY
@@ -9,7 +10,7 @@ from coinbase_api_v2 import get_bitcoin_price, get_previous_day_bitcoin_price
 from logger import Logger
 from src.coinbase_api import CoinbaseAdvancedAuth, buy_bitcoin, get_order_details, wait_for_order_completion
 from src.coinbase_api_v2 import CoinbaseWalletAuth, get_euro_balance, get_bitcoin_price_change
-from src.database import log_transaction, log_uninvested_balance
+from src.database import log_transaction, log_uninvested_balance, get_last_purchase_date, update_last_purchase_date
 from src.investment_logic import get_fear_and_greed_index, adaptive_average_cost, \
     adaptive_cost_average_with_market_timing
 
@@ -18,6 +19,15 @@ logger = Logger()
 
 def execute_investment(transaction_type='regular'):
     logger.info("Starting execute_investment function.")
+
+    # Check the last purchase date before executing the investment
+    last_purchase_date = get_last_purchase_date()
+    today_date = datetime.now().strftime("%Y-%m-%d")
+
+    if last_purchase_date == today_date:
+        logger.info("Bitcoin already purchased today. Skipping the purchase.")
+        return
+
     private_key = PRIVATE_KEY
     auth = CoinbaseAdvancedAuth(API_KEY, private_key)
     auth_v2 = CoinbaseWalletAuth(API_KEY_V2, API_SECRET_V2)
@@ -57,6 +67,10 @@ def execute_investment(transaction_type='regular'):
                     purchase_time=order_details['created_time'],
                     transaction_type=transaction_type
                 )
+
+                # Update the last purchase date after a successful purchase
+                update_last_purchase_date(today_date)
+
                 logger.info(f"Transaction logged: {order_details}")
                 logger.debug(f"Order details: {order_details}")
 

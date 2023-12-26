@@ -124,7 +124,7 @@ def get_bitcoin_price(one_week_ago=False, trading_pair=TRADING_PAIR):
             data = response.json()
             price = float(data['data']['amount'])
             logger.info(f"Bitcoin price: {price}")
-            return 39793.59
+            return price
         else:
             logger.error(f"Error fetching Bitcoin price: {response.status_code}")
             return None
@@ -159,6 +159,7 @@ def get_previous_day_bitcoin_price(trading_pair=TRADING_PAIR):
     except Exception as e:
         logger.error(f"Exception fetching Bitcoin price for {previous_day}: {e}")
         return None
+
 
 def get_bitcoin_price_change(trading_pair=TRADING_PAIR):
     """

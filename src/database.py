@@ -1,8 +1,8 @@
 import sqlite3
-
 from logger import Logger
 
 logger = Logger()
+
 
 def create_database():
     conn = sqlite3.connect('trading_app.db')
@@ -28,6 +28,14 @@ def create_database():
             month_year TEXT NOT NULL,
             investment_date TEXT NOT NULL,
             uninvested_amount REAL NOT NULL
+        )
+    ''')
+
+    # New table for tracking the last purchase date
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS last_purchase (
+            id INTEGER PRIMARY KEY,
+            last_purchase_date TEXT
         )
     ''')
 
@@ -67,25 +75,22 @@ def log_uninvested_balance(month_year, investment_date, uninvested_amount):
         conn.close()
 
 
-def get_uninvested_balances(month_year=None):
+# New functions to manage the last purchase date
+def get_last_purchase_date():
     conn = sqlite3.connect('trading_app.db')
-    try:
-        cursor = conn.cursor()
+    cursor = conn.cursor()
 
-        if month_year:
-            cursor.execute('''
-                SELECT uninvested_amount FROM uninvested_balances WHERE month_year = ?
-            ''', (month_year,))
-            result = cursor.fetchone()
-            return result[0] if result else 0
-        else:
-            cursor.execute('''
-                SELECT SUM(uninvested_amount) FROM uninvested_balances
-            ''')
-            result = cursor.fetchone()
-            return result[0] if result else 0
-    except sqlite3.Error as e:
-        logger.error(f"Database error: {e}")
-        return None
-    finally:
-        conn.close()
+    cursor.execute('SELECT last_purchase_date FROM last_purchase ORDER BY id DESC LIMIT 1')
+    result = cursor.fetchone()
+    conn.close()
+
+    return result[0] if result else None
+
+
+def update_last_purchase_date(date):
+    conn = sqlite3.connect('trading_app.db')
+    cursor = conn.cursor()
+
+    cursor.execute('INSERT INTO last_purchase (last_purchase_date) VALUES (?)', (date,))
+    conn.commit()
+    conn.close()
