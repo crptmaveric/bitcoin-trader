@@ -30,8 +30,8 @@ else:
     logger.error("Invalid INVESTMENT_DAY. Please choose a day from 'Monday' to 'Sunday'.")
 
 # Schedule the price drop check function
-schedule.every(CHECK_INTERVAL).hours.do(schedule_price_drop_investment)
-logger.info(f"Price drop investment check scheduled every {CHECK_INTERVAL} hour(s).")
+# schedule.every(CHECK_INTERVAL).hours.do(schedule_price_drop_investment)
+# logger.info(f"Price drop investment check scheduled every {CHECK_INTERVAL} hour(s).")
 
 logger.info("Starting main application.")
 while True:
