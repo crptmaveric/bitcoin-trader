@@ -6,7 +6,7 @@ from config.config import INVESTMENT_DAY, CHECK_INTERVAL
 
 from investment import execute_investment, schedule_price_drop_investment, check_price_drop_and_buy
 from logger import Logger
-from src.database import create_database
+from database import create_database
 
 logger = Logger()
 

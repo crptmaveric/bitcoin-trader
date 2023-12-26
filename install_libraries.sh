@@ -7,13 +7,14 @@ sudo apt-get update
 sudo apt-get upgrade -y
 
 # Install Python3 and pip if they are not installed
-sudo apt-get install python3 python3-pip -y
+sudo apt-get install python3 python3-pip cmake libopenblas-dev -y
 
 # Install necessary Python libraries
 pip3 install cryptography requests jwt numpy pandas schedule
 
 # Definícia cesty k priečinku s aplikáciou (upravte podľa vašich potrieb)
-APP_DIR="."
+APP_DIR="/home/rdy/bitcoin-trader"
+
 LOGS_DIR="$APP_DIR/logs"
 CONFIG_DIR="$APP_DIR/config"
 
@@ -21,6 +22,7 @@ CONFIG_DIR="$APP_DIR/config"
 if [ ! -d "$LOGS_DIR" ]; then
   echo "Vytváram adresár 'logs'..."
   mkdir -p "$LOGS_DIR"
+  touch "$LOGS_DIR/application.log"
 fi
 
 # Kontrola existencie adresára config
