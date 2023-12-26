@@ -29,4 +29,7 @@ if [ ! -d "$CONFIG_DIR" ]; then
   mkdir -p "$CONFIG_DIR"
 fi
 
+# spustitelny run
+chmod +x run.sh
+
 echo "All necessary libraries have been installed."
