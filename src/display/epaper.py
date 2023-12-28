@@ -91,6 +91,9 @@ class EPaperDisplayManager:
         for i, (title, text) in enumerate(zip(titles, texts)):
             self._draw_in_quadrant(draw_black, title, text, i + 1)
 
+        black_image = black_image.rotate(180)
+        red_image = red_image.rotate(180)
+
         # Update the display
         self.epd.display(self.epd.getbuffer(black_image), self.epd.getbuffer(red_image))
         self.epd.sleep()
