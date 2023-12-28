@@ -1,4 +1,5 @@
 import sqlite3
+import datetime
 from logger import Logger
 
 logger = Logger()
@@ -125,20 +126,36 @@ def get_average_buy_price():
     conn = sqlite3.connect('trading_app.db')
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT AVG(purchase_price) FROM transactions WHERE transaction_type = 'buy'
+        SELECT AVG(purchase_price) FROM transactions
     ''')
     average_price = cursor.fetchone()[0]
     conn.close()
+
+    # Zaokrúhlenie na dve desatinné miesta pomocou formátovania reťazca
+    if average_price is not None:
+        average_price = "{:.2f}".format(average_price)
+
     return average_price
 
 
-def get_last_transaction():
-    """Retrieves the most recent transaction from the database."""
+def get_last_transaction_date():
+    """Retrieves the date of the most recent transaction from the database."""
     conn = sqlite3.connect('trading_app.db')
     cursor = conn.cursor()
+
     cursor.execute('''
-        SELECT * FROM transactions ORDER BY purchase_time DESC LIMIT 1
+        SELECT purchase_time FROM transactions ORDER BY purchase_time DESC LIMIT 1
     ''')
-    last_transaction = cursor.fetchone()
+    last_transaction_time = cursor.fetchone()
     conn.close()
-    return last_transaction
+
+    if last_transaction_time is None:
+        return None
+
+    # Odstránenie 'Z' a prevod na datetime objekt
+    isoformat_time = last_transaction_time[0].replace('Z', '')
+    datetime_obj = datetime.datetime.fromisoformat(isoformat_time)
+    formatted_date = datetime_obj.strftime('%d.%m.%Y')
+
+    return formatted_date
+

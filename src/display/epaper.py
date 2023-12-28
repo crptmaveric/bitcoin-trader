@@ -7,8 +7,6 @@ libdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__)
 if os.path.exists(libdir):
     sys.path.append(libdir)
 
-print(picdir)
-
 from display.lib.waveshare_epd import epd2in13b_V4
 from PIL import Image, ImageDraw, ImageFont
 

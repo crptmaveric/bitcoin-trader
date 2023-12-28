@@ -3,7 +3,7 @@ import time
 from config.config import INVESTMENT_DAY, CHECK_INTERVAL
 from investment import execute_investment, schedule_price_drop_investment, get_fear_and_greed_index
 from logger import Logger
-from database import create_database, get_last_transaction, get_average_buy_price
+from database import create_database, get_last_transaction_date, get_average_buy_price
 from coinbase_api_v2 import get_bitcoin_price
 from display.epaper import EPaperDisplayManager
 
@@ -21,7 +21,7 @@ def prepare_display_data():
     fear_greed_index = get_fear_and_greed_index()
     bitcoin_price = get_bitcoin_price()
     average_buy_price = get_average_buy_price()
-    last_transaction = get_last_transaction()
+    last_transaction = get_last_transaction_date()
 
     return {
         "Fear & Greed Index": fear_greed_index,
@@ -32,12 +32,15 @@ def prepare_display_data():
 
 
 def update_epaper_display():
+    logger.info("Updating display.")
     display_data = prepare_display_data()
     epaper_display.update_display(display_data)
 
 
 create_database()
 logger.info("Database created.")
+
+update_epaper_display()
 
 schedule_map = {
     'monday': schedule.every().monday,
