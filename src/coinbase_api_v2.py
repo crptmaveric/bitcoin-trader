@@ -161,7 +161,7 @@ def get_previous_day_bitcoin_price(trading_pair=TRADING_PAIR):
         return None
 
 
-def get_bitcoin_price_change(trading_pair=TRADING_PAIR):
+def get_bitcoin_price_change_week(trading_pair=TRADING_PAIR):
     """
     Calculate the percentage change in Bitcoin price over the past week.
 

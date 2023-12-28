@@ -9,7 +9,7 @@ from config.config import DROP_THRESHOLD
 from coinbase_api_v2 import get_bitcoin_price, get_previous_day_bitcoin_price
 from logger import Logger
 from src.coinbase_api import CoinbaseAdvancedAuth, buy_bitcoin, get_order_details, wait_for_order_completion
-from src.coinbase_api_v2 import CoinbaseWalletAuth, get_euro_balance, get_bitcoin_price_change
+from src.coinbase_api_v2 import CoinbaseWalletAuth, get_euro_balance, get_bitcoin_price_change_week
 from src.database import log_transaction, log_uninvested_balance, get_last_purchase_date, update_last_purchase_date
 from src.investment_logic import get_fear_and_greed_index, adaptive_average_cost, \
     adaptive_cost_average_with_market_timing
@@ -33,7 +33,7 @@ def execute_investment(transaction_type='regular'):
     auth_v2 = CoinbaseWalletAuth(API_KEY_V2, API_SECRET_V2)
 
     index_value = get_fear_and_greed_index()
-    btc_price_change = get_bitcoin_price_change()
+    btc_price_change = get_bitcoin_price_change_week()
 
     if INVESTMENT_STRATEGY == 'adaptive_cost_average_with_market_timing':
         investment_amount = adaptive_cost_average_with_market_timing(index_value, btc_price_change, MONTHLY_LIMIT,
