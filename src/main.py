@@ -34,6 +34,7 @@ def prepare_display_data():
 
     change_color = "red" if bitcoin_change < 0 else "black"
     bitcoin_change = "{:.2f}".format(bitcoin_change)
+    bitcoin_price = "{:.2f}".format(bitcoin_price)
 
     return {
         "Fear & Greed Index": fear_greed_index,
