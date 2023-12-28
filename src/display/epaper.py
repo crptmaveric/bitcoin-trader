@@ -1,16 +1,16 @@
-import sys
 import os
+import sys
 
 # Set up directories for fonts and images
-picdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'pic')
-libdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'lib')
+picdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'display/pic')
+libdir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'display/lib')
 if os.path.exists(libdir):
     sys.path.append(libdir)
 
-from lib.waveshare_epd import epd2in13b_V4
-import time
+print(picdir)
+
+from display.lib.waveshare_epd import epd2in13b_V4
 from PIL import Image, ImageDraw, ImageFont
-import traceback
 
 PADDING_LEFT = 5
 
@@ -47,9 +47,6 @@ class EPaperDisplayManager:
         wrapped_title = self._wrap_text(title, self.quadrant_width, self.font_title)
         wrapped_text = self._wrap_text(text, self.quadrant_width, self.font_content)
 
-        print(wrapped_title)
-        print(wrapped_text)
-
         x_offset = 0 if quadrant in [1, 3] else self.quadrant_width + PADDING_LEFT
         y_offset = 0 if quadrant in [1, 2] else self.quadrant_height
 
@@ -63,6 +60,14 @@ class EPaperDisplayManager:
         for text in wrapped_text:
             draw.text((x_offset_content, y_offset_content), text, font=self.font_content, fill=0)
             y_offset_content += self.font_content.getsize(text)[1]
+
+    def update_display(self, display_data):
+        """ Updates the display with provided data. """
+        # Extract titles and texts directly from the display_data dictionary
+        titles = list(display_data.keys())
+        texts = [str(value) for value in display_data.values()]
+
+        self.display_text_in_quadrants(titles, texts)
 
     def display_text_in_quadrants(self, titles, texts):
         """ Displays texts in the four quadrants. """
@@ -91,7 +96,6 @@ class EPaperDisplayManager:
         # Update the display
         self.epd.display(self.epd.getbuffer(black_image), self.epd.getbuffer(red_image))
         self.epd.sleep()
-
 
 # Usage example
 # display_manager = EPaperDisplayManager()

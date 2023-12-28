@@ -28,7 +28,6 @@
 #
 
 import logging
-from multiprocessing.reduction import recv_handle
 from . import epdconfig
 
 # Display resolution

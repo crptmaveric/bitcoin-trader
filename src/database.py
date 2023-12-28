@@ -118,3 +118,27 @@ def update_last_purchase_date(date):
     cursor.execute('INSERT INTO last_purchase (last_purchase_date) VALUES (?)', (date,))
     conn.commit()
     conn.close()
+
+
+def get_average_buy_price():
+    """Calculates the average buy price of Bitcoin from the transactions."""
+    conn = sqlite3.connect('trading_app.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT AVG(purchase_price) FROM transactions WHERE transaction_type = 'buy'
+    ''')
+    average_price = cursor.fetchone()[0]
+    conn.close()
+    return average_price
+
+
+def get_last_transaction():
+    """Retrieves the most recent transaction from the database."""
+    conn = sqlite3.connect('trading_app.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT * FROM transactions ORDER BY purchase_time DESC LIMIT 1
+    ''')
+    last_transaction = cursor.fetchone()
+    conn.close()
+    return last_transaction

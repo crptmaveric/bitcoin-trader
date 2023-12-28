@@ -1,11 +1,11 @@
 # *****************************************************************************
-# * | File        :	  epd7in3g.py
+# * | File        :	  epd2in9g.py
 # * | Author      :   Waveshare team
 # * | Function    :   Electronic paper driver
 # * | Info        :
 # *----------------
-# * | This version:   V1
-# * | Date        :   2022-07-20
+# * | This version:   V1.0
+# * | Date        :   2023-03-08
 # # | Info        :   python demo
 # -----------------------------------------------------------------------------
 # ******************************************************************************/
@@ -31,13 +31,11 @@
 import logging
 from . import epdconfig
 
-import PIL
 from PIL import Image
-import io
 
 # Display resolution
-EPD_WIDTH       = 800
-EPD_HEIGHT      = 480
+EPD_WIDTH       = 184
+EPD_HEIGHT      = 360
 
 logger = logging.getLogger(__name__)
 
@@ -89,85 +87,73 @@ class EPD:
 
     def TurnOnDisplay(self):
         self.send_command(0x12) # DISPLAY_REFRESH
-        self.send_data(0x01)
-        self.ReadBusyH()
-
-        self.send_command(0x02) # POWER_OFF
-        self.send_data(0X00)
+        self.send_data(0x00)
         self.ReadBusyH()
         
     def init(self):
         if (epdconfig.module_init() != 0):
             return -1
         # EPD hardware init start
+
         self.reset()
         self.ReadBusyH()
-        epdconfig.delay_ms(30)
+        self.send_command(0x4D) 
+        self.send_data(0x78) 
 
-        self.send_command(0xAA)
-        self.send_data(0x49)
-        self.send_data(0x55)
-        self.send_data(0x20)
-        self.send_data(0x08)
-        self.send_data(0x09)
-        self.send_data(0x18)
+        self.send_command(0x00) 	#PSR
+        self.send_data(0x0F) 
+        self.send_data(0x29) 
 
-        self.send_command(0x01)
-        self.send_data(0x3F)
+        self.send_command(0x01) 	#PWRR
+        self.send_data(0x07) 
+        self.send_data(0x00) 
+        
+        self.send_command(0x03) 	#POFS
+        self.send_data(0x10) 
+        self.send_data(0x54) 
+        self.send_data(0x44) 
+        
+        self.send_command(0x06) 	#BTST_P
+        self.send_data(0x05) 
+        self.send_data(0x00) 
+        self.send_data(0x3F) 
+        self.send_data(0x0A) 
+        self.send_data(0x25) 
+        self.send_data(0x12) 
+        self.send_data(0x1A)  
 
-        self.send_command(0x00)
-        self.send_data(0x4F)
-        self.send_data(0x69)
+        self.send_command(0x50) 	#CDI
+        self.send_data(0x37) 
+        
+        self.send_command(0x60) 	#TCON
+        self.send_data(0x02) 
+        self.send_data(0x02) 
+        
+        self.send_command(0x61)  #TRES
+        self.send_data(self.width//256) 		# Source_BITS_H
+        self.send_data(self.width%256) 		# Source_BITS_L
+        self.send_data(self.height//256) 			# Gate_BITS_H
+        self.send_data(self.height%256)  		# Gate_BITS_L	
+        
+        self.send_command(0xE7) 
+        self.send_data(0x1C) 
+        
+        self.send_command(0xE3) 	
+        self.send_data(0x22) 
+        
+        self.send_command(0xB4) 
+        self.send_data(0xD0) 
+        self.send_command(0xB5) 
+        self.send_data(0x03) 
+        
+        self.send_command(0xE9) 
+        self.send_data(0x01)  
 
-        self.send_command(0x05)
-        self.send_data(0x40)
-        self.send_data(0x1F)
-        self.send_data(0x1F)
-        self.send_data(0x2C)
-
-        self.send_command(0x08)
-        self.send_data(0x6F)
-        self.send_data(0x1F)
-        self.send_data(0x1F)
-        self.send_data(0x22)
-
-        # ===================
-        # 20211212
-        # First setting
-        self.send_command(0x06)
-        self.send_data(0x6F)
-        self.send_data(0x1F)
-        self.send_data(0x14)
-        self.send_data(0x14)
-        # ===================
-
-        self.send_command(0x03)
-        self.send_data(0x00)
-        self.send_data(0x54)
-        self.send_data(0x00)
-        self.send_data(0x44)
-
-        self.send_command(0x60)
-        self.send_data(0x02)
-        self.send_data(0x00)
-        # Please notice that PLL must be set for version 2 IC
-        self.send_command(0x30)
-        self.send_data(0x08)
-
-        self.send_command(0x50)
-        self.send_data(0x3F)
-
-        self.send_command(0x61)
-        self.send_data(0x03)
-        self.send_data(0x20)
-        self.send_data(0x01)
-        self.send_data(0xE0)
-
-        self.send_command(0xE3)
-        self.send_data(0x2F)
-
-        self.send_command(0x84)
-        self.send_data(0x01)
+        self.send_command(0x30) 
+        self.send_data(0x08)   
+            
+        self.send_command(0x04) 
+        self.ReadBusyH()
         return 0
 
     def getbuffer(self, image):
@@ -194,6 +180,7 @@ class EPD:
         for i in range(0, len(buf_4color), 4):
             buf[idx] = (buf_4color[i] << 6) + (buf_4color[i+1] << 4) + (buf_4color[i+2] << 2) + buf_4color[i+3]
             idx += 1
+
         return buf
 
     def display(self, image):
@@ -203,13 +190,11 @@ class EPD:
             Width = self.width // 4 + 1
         Height = self.height
 
-        self.send_command(0x04)
-        self.ReadBusyH()
-
         self.send_command(0x10)
         for j in range(0, Height):
             for i in range(0, Width):
                     self.send_data(image[i + j * Width])
+
         self.TurnOnDisplay()
         
     def Clear(self, color=0x55):
@@ -218,9 +203,6 @@ class EPD:
         else :
             Width = self.width // 4 + 1
         Height = self.height
-
-        self.send_command(0x04)
-        self.ReadBusyH()
 
         self.send_command(0x10)
         for j in range(0, Height):
@@ -231,7 +213,9 @@ class EPD:
 
     def sleep(self):
         self.send_command(0x02) # POWER_OFF
-        self.send_data(0x00)
+        self.send_data(0X00)
+        self.ReadBusyH()
+        epdconfig.delay_ms(2000)
 
         self.send_command(0x07) # DEEP_SLEEP
         self.send_data(0XA5)

@@ -1,11 +1,11 @@
 # *****************************************************************************
-# * | File        :	  epd2in36g.py
+# * | File        :	  epd3in0g.py
 # * | Author      :   Waveshare team
 # * | Function    :   Electronic paper driver
 # * | Info        :
 # *----------------
-# * | This version:   V1.0
-# * | Date        :   2022-08-17
+# * | This version:   V1
+# * | Date        :   2022-07-20
 # # | Info        :   python demo
 # -----------------------------------------------------------------------------
 # ******************************************************************************/
@@ -31,13 +31,11 @@
 import logging
 from . import epdconfig
 
-import PIL
 from PIL import Image
-import io
 
 # Display resolution
 EPD_WIDTH       = 168
-EPD_HEIGHT      = 296
+EPD_HEIGHT      = 400
 
 logger = logging.getLogger(__name__)
 
@@ -108,50 +106,43 @@ class EPD:
         self.send_data(0x55)
         self.send_data(0x13)
         self.send_data(0x5D)
-
-        self.send_command(0x66)
-        self.send_data(0x49)
-        self.send_data(0x55)
+        self.send_data(0x05)
+        self.send_data(0x10)
 
         self.send_command(0xB0)
-        self.send_data(0x03)
+        self.send_data(0x00) # 1 boost
+
+        self.send_command(0x01)
+        self.send_data(0x0F)
+        self.send_data(0x00)
 
         self.send_command(0x00)
         self.send_data(0x4F)
-        self.send_data(0x69)
-
-        self.send_command(0x03)
-        self.send_data(0x00)
-
-        self.send_command(0xF0)
-        self.send_data(0xF6)
-        self.send_data(0x0D)
-        self.send_data(0x00)
-        self.send_data(0x00)
-        self.send_data(0x00)
+        self.send_data(0x6B)
 
         self.send_command(0x06)
-        self.send_data(0xCF)
+        self.send_data(0xD7)
         self.send_data(0xDE)
-        self.send_data(0x0F)
-
-        self.send_command(0x41)
-        self.send_data(0x00)
-
-        self.send_command(0x50)
-        self.send_data(0x30)
-
-        self.send_command(0x60)
-        self.send_data(0x0C) 
-        self.send_data(0x05)
+        self.send_data(0x12)
 
         self.send_command(0x61)
+        self.send_data(0x00)
         self.send_data(0xA8)
-        self.send_data(0x01) 
-        self.send_data(0x28) 
+        self.send_data(0x01)
+        self.send_data(0x90)
+
+        self.send_command(0x50)
+        self.send_data(0x37)
+
+        self.send_command(0x60)
+        self.send_data(0x0C)
+        self.send_data(0x05)
+
+        self.send_command(0xE3)
+        self.send_data(0xFF)
 
         self.send_command(0x84)
-        self.send_data(0x01)
+        self.send_data(0x00)
         return 0
 
     def getbuffer(self, image):
@@ -188,9 +179,6 @@ class EPD:
             Width = self.width // 4 + 1
         Height = self.height
 
-        self.send_command(0x68)
-        self.send_data(0x01)
-
         self.send_command(0x04)
         self.ReadBusyH()
 
@@ -198,9 +186,6 @@ class EPD:
         for j in range(0, Height):
             for i in range(0, Width):
                     self.send_data(image[i + j * Width])
-
-        self.send_command(0x68)
-        self.send_data(0x00)
 
         self.TurnOnDisplay()
         
@@ -211,9 +196,6 @@ class EPD:
             Width = self.width // 4 + 1
         Height = self.height
 
-        self.send_command(0x68)
-        self.send_data(0x01)
-
         self.send_command(0x04)
         self.ReadBusyH()
 
@@ -221,9 +203,6 @@ class EPD:
         for j in range(0, Height):
             for i in range(0, Width):
                 self.send_data(color)
-
-        self.send_command(0x68)
-        self.send_data(0x00)
 
         self.TurnOnDisplay()
 
