@@ -4,7 +4,7 @@ from config.config import INVESTMENT_DAY, CHECK_INTERVAL
 from investment import execute_investment, schedule_price_drop_investment, get_fear_and_greed_index
 from logger import Logger
 from database import create_database, get_last_transaction_date, get_average_buy_price
-from coinbase_api_v2 import get_bitcoin_price
+from coinbase_api_v2 import get_bitcoin_price, get_bitcoin_price_change
 from display.epaper import EPaperDisplayManager
 
 logger = Logger()
@@ -22,11 +22,14 @@ def prepare_display_data():
     bitcoin_price = get_bitcoin_price()
     average_buy_price = get_average_buy_price()
     last_transaction = get_last_transaction_date()
+    bitcoin_change = get_bitcoin_price_change()
+
+    change_color = "red" if bitcoin_change < 0 else "black"
 
     return {
         "Fear & Greed Index": fear_greed_index,
-        "Bitcoin Price (€)": bitcoin_price,
-        "Average Buy Price (€)": average_buy_price,
+        "Bitcoin Price (€)": [(bitcoin_price, "s", "black", "normal"), (f"{bitcoin_change}%", "s", change_color, "small")],
+        "Avg Buy Price (€)": average_buy_price,
         "Last Transaction": last_transaction
     }
 
