@@ -12,7 +12,7 @@ print(picdir)
 from display.lib.waveshare_epd import epd2in13b_V4
 from PIL import Image, ImageDraw, ImageFont
 
-PADDING_LEFT = 5
+PADDING_LEFT = 6
 
 
 class EPaperDisplayManager:
