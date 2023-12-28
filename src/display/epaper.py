@@ -108,9 +108,25 @@ class EPaperDisplayManager:
         """ Updates the display with provided data. """
         # Extract titles and texts directly from the display_data dictionary
         titles = list(display_data.keys())
-        texts = [str(value) for value in display_data.values()]
+        values = display_data.values()
+        result = [None] * len(values)  # inicializácia zoznamu result s rovnakou dĺžkou ako values
 
-        self.display_text_in_quadrants(titles, texts)
+        for i, value in enumerate(values):
+            if isinstance(value, str):
+                result[i] = str(value)
+            elif isinstance(value, list):
+                # Ak je hodnota zoznam, spracujeme každý prvok zoznamu
+                sub_result = []
+                for item in value:
+                    if isinstance(item, str):
+                        sub_result.append(str(item))
+                    else:
+                        sub_result.append(item)
+                result[i] = sub_result
+            else:# asi cislo
+                result[i] = str(value)
+
+        self.display_text_in_quadrants(titles, result)
 
     def display_text_in_quadrants(self, titles, texts):
         """ Displays texts in the four quadrants. """

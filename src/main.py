@@ -25,10 +25,11 @@ def prepare_display_data():
     bitcoin_change = get_bitcoin_price_change()
 
     change_color = "red" if bitcoin_change < 0 else "black"
+    bitcoin_change = "{:.2f}".format(bitcoin_change)
 
     return {
         "Fear & Greed Index": fear_greed_index,
-        "Bitcoin Price (€)": [(bitcoin_price, "s", "black", "normal"), (f"{bitcoin_change}%", "s", change_color, "small")],
+        "Bitcoin Price (€)": [(f"{bitcoin_price}", "s", "black", "normal"), (f"{bitcoin_change}%", "s", change_color, "small")],
         "Avg Buy Price (€)": average_buy_price,
         "Last Transaction": last_transaction
     }
