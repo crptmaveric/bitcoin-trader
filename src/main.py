@@ -1,14 +1,40 @@
 import schedule
 import time
-
-import schedule
 from config.config import INVESTMENT_DAY, CHECK_INTERVAL
-
-from investment import execute_investment, schedule_price_drop_investment
+from investment import execute_investment, schedule_price_drop_investment, get_fear_and_greed_index
 from logger import Logger
-from database import create_database
+from database import create_database, get_last_transaction, get_average_buy_price
+from coinbase_api_v2 import get_bitcoin_price
+from display.epaper import EPaperDisplayManager
 
 logger = Logger()
+
+# Assuming EPaperDisplayManager is properly imported from epaper.py
+epaper_display = EPaperDisplayManager()
+
+
+def prepare_display_data():
+    """
+    Fetches and prepares data for display on the e-paper screen.
+    Returns a dictionary with the data for each quadrant.
+    """
+    fear_greed_index = get_fear_and_greed_index()
+    bitcoin_price = get_bitcoin_price()
+    average_buy_price = get_average_buy_price()
+    last_transaction = get_last_transaction()
+
+    return {
+        "Fear & Greed Index": fear_greed_index,
+        "Bitcoin Price (€)": bitcoin_price,
+        "Average Buy Price (€)": average_buy_price,
+        "Last Transaction": last_transaction
+    }
+
+
+def update_epaper_display():
+    display_data = prepare_display_data()
+    epaper_display.update_display(display_data)
+
 
 create_database()
 logger.info("Database created.")
@@ -31,7 +57,12 @@ else:
 
 # Schedule the price drop check function
 schedule.every(CHECK_INTERVAL).hours.do(schedule_price_drop_investment)
+
+# Schedule the e-paper display update function
+schedule.every(CHECK_INTERVAL).hours.do(update_epaper_display)
+
 logger.info(f"Price drop investment check scheduled every {CHECK_INTERVAL} hour(s).")
+logger.info("E-paper display update scheduled every 2 hours.")
 
 logger.info("Starting main application.")
 while True:
