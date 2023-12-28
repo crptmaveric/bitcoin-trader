@@ -7,4 +7,4 @@ PROJECT_PATH="/home/rdy/bitcoin-trader"
 export PYTHONPATH="$PROJECT_PATH:$PYTHONPATH"
 
 # Spustenie Python skriptu
-python "$PROJECT_PATH/src/main.py"
+python "$PROJECT_PATH/src/main.py" &
