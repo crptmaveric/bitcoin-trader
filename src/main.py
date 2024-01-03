@@ -4,8 +4,10 @@ from config.config import INVESTMENT_DAY, CHECK_INTERVAL
 from investment import execute_investment, schedule_price_drop_investment, get_fear_and_greed_index
 from logger import Logger
 from database import create_database, get_last_transaction_date, get_average_buy_price
-from coinbase_api_v2 import get_bitcoin_price, get_bitcoin_price_change_week, get_previous_day_bitcoin_price
+from coinbase_api_v2 import get_bitcoin_price
+from coinbase_api import get_previous_day_bitcoin_price
 from display.epaper import EPaperDisplayManager
+from config.config import API_KEY, PRIVATE_KEY, TRADING_PAIR
 
 logger = Logger()
 
@@ -24,7 +26,7 @@ def prepare_display_data():
     last_transaction = get_last_transaction_date()
 
     # Retrieve the previous day's Bitcoin price
-    previous_price = get_previous_day_bitcoin_price()
+    previous_price = get_previous_day_bitcoin_price(API_KEY, PRIVATE_KEY, TRADING_PAIR)
     if previous_price is None:
         logger.error("Failed to retrieve the previous day's Bitcoin price.")
         return

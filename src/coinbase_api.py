@@ -1,3 +1,4 @@
+import datetime
 import jwt
 import time
 import requests
@@ -209,6 +210,62 @@ def sell_bitcoin(api_key, private_key, client_order_id, product_id, amount, orde
         }
 
 
+def get_previous_day_bitcoin_price(api_key, private_key, product_id):
+    """
+    Retrieve the closing Bitcoin price from the previous day using the Coinbase Advanced Trading API.
+
+    Parameters:
+    api_key (str): API key for Coinbase Advanced Trading API.
+    private_key (str): Private key for generating the JWT.
+    trading_pair (str): The trading pair to use (e.g., 'BTC-USD').
+
+    Returns:
+    float: The closing Bitcoin price from the previous day, or None if the request fails.
+    """
+    previous_day_start = (datetime.datetime.now() - datetime.timedelta(days=1)).replace(hour=0, minute=0, second=0,
+                                                                                        microsecond=0)
+    previous_day_end = previous_day_start + datetime.timedelta(days=1)
+
+    # Convert start and end times to UNIX timestamp and then to string
+    start_timestamp = str(int(previous_day_start.timestamp()))
+    end_timestamp = str(int(previous_day_end.timestamp()))
+
+    auth = CoinbaseAdvancedAuth(api_key, private_key)
+    jwt_token = auth.generate_jwt('GET', 'api.coinbase.com', f'/api/v3/brokerage/products/{product_id}/candles',
+                                  'retail_rest_api_proxy')
+
+    if jwt_token is None:
+        logger.error("Failed to generate JWT token.")
+        return None
+
+    headers = {"Authorization": f"Bearer {jwt_token}"}
+
+    url = f'https://api.coinbase.com/api/v3/brokerage/products/{product_id}/candles'
+    params = {
+        "start": start_timestamp,
+        "end": end_timestamp,
+        "granularity": "ONE_DAY"
+    }
+
+    try:
+        response = requests.get(url, headers=headers, params=params)
+        response.raise_for_status()
+
+        # Extracting data from the response
+        data = response.json()
+        candles = data.get('candles', [])
+        if candles and len(candles) > 0:
+            close_price = float(candles[0]['close'])  # Extracting the close price from the first candle
+            logger.info(f"Previous day Bitcoin closing price: {close_price}")
+            return close_price
+        else:
+            logger.error("No data returned for the previous day Bitcoin price.")
+            return None
+    except Exception as e:
+        logger.error(f"Exception fetching Bitcoin price for the previous day: {e}")
+        return None
+
+
 def create_stop_order(api_key, private_key, client_order_id, product_id, base_size, stop_price, limit_price,
                       stop_direction, order_type='stop_limit_stop_limit_gtc'):
     """
@@ -273,4 +330,3 @@ def create_stop_order(api_key, private_key, client_order_id, product_id, base_si
     except Exception as e:
         logger.error(f"Exception during stop order request: {e}")
         return {"status": "exception", "message": str(e)}
-
