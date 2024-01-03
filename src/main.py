@@ -55,6 +55,8 @@ def update_epaper_display():
 create_database()
 logger.info("Database created.")
 
+# Check drop and update display
+schedule_price_drop_investment()
 update_epaper_display()
 
 schedule_map = {
@@ -75,8 +77,6 @@ else:
 
 # Schedule the price drop check function
 schedule.every(CHECK_INTERVAL).hours.do(schedule_price_drop_investment)
-
-schedule_price_drop_investment()
 
 # Schedule the e-paper display update function
 schedule.every(CHECK_INTERVAL).hours.do(update_epaper_display)
