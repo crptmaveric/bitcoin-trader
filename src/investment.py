@@ -73,8 +73,8 @@ def execute_investment(transaction_type='regular'):
                 logger.info(f"Transaction logged: {order_details}")
                 logger.debug(f"Order details: {order_details}")
 
-                if investment_amount < MONTHLY_LIMIT:
-                    uninvested_amount = MONTHLY_LIMIT - investment_amount
+                if investment_amount < (MONTHLY_LIMIT/FREQUENCY):
+                    uninvested_amount = (MONTHLY_LIMIT/FREQUENCY) - investment_amount
                     current_date = time.strftime("%Y-%m-%d")
                     month_year = time.strftime("%m-%Y")
                     log_uninvested_balance(month_year, current_date, uninvested_amount)

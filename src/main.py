@@ -70,7 +70,7 @@ schedule_map = {
 }
 
 if INVESTMENT_DAY.lower() in schedule_map:
-    schedule_map[INVESTMENT_DAY.lower()].do(execute_investment)
+    schedule_map[INVESTMENT_DAY.lower()].at("01:11").do(execute_investment)
     logger.info(f"Investment scheduled on {INVESTMENT_DAY}.")
 else:
     logger.error("Invalid INVESTMENT_DAY. Please choose a day from 'Monday' to 'Sunday'.")
