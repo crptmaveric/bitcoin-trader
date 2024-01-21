@@ -11,6 +11,7 @@ sudo apt-get install python3 python3-pip cmake libopenblas-dev -y
 
 # Install necessary Python libraries
 pip3 install cryptography requests PyJWT numpy pandas schedule
+pip3 install coinbase-advanced-py
 
 # Definícia cesty k priečinku s aplikáciou (upravte podľa vašich potrieb)
 APP_DIR="/home/rdy/bitcoin-trader"
