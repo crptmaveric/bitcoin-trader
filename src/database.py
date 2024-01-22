@@ -122,20 +122,25 @@ def update_last_purchase_date(date):
 
 
 def get_average_buy_price():
-    """Calculates the average buy price of Bitcoin from the transactions."""
+    # Connect to the database
     conn = sqlite3.connect('trading_app.db')
     cursor = conn.cursor()
+
+    # Execute a query to calculate the weighted average
     cursor.execute('''
-        SELECT AVG(purchase_price) FROM transactions
+        SELECT SUM(bitcoin_purchased * purchase_price) / SUM(bitcoin_purchased)
+        FROM transactions
     ''')
-    average_price = cursor.fetchone()[0]
+
+    # Fetch the result and close the connection
+    weighted_average_price = cursor.fetchone()[0]
     conn.close()
 
-    # Zaokrúhlenie na dve desatinné miesta pomocou formátovania reťazca
-    if average_price is not None:
-        average_price = "{:.2f}".format(average_price)
+    # Format the result to two decimal places
+    if weighted_average_price is not None:
+        weighted_average_price = "{:.2f}".format(weighted_average_price)
 
-    return average_price
+    return weighted_average_price
 
 
 def get_last_transaction_date():
